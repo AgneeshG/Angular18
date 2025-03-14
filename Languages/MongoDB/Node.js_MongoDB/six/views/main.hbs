@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port:3000</title>
+</head>
+
+<body>
+    <h2>Sixth node.js and mongodb project</h2>
+    {{message}}
+    <hr>
+    {{#if edit_id}}
+    <h2>Update :</h2>
+    <form action="/update_mobile/{{edit_id}}" method="post">
+        <label>Brand : </label> <input type="text" name="brand" value="{{edit_mobile.brand}}"><br>
+        <label>Price : </label> <input type="text" name="price" value="{{edit_mobile.price}}"><br>
+        <label>Ram : </label> <input type="text" name="ram" value="{{edit_mobile.ram}}"><br>
+        <label>Rom : </label> <input type="text" name="rom" value="{{edit_mobile.rom}}"><br>
+        <input type="submit" value="Submit">
+    </form>
+    {{else}}
+    <h2>Create :</h2>
+    <form action="/new_mobile" method="post">
+        <label>Brand : </label> <input type="text" name="brand"><br>
+        <label>Price : </label> <input type="text" name="price"><br>
+        <label>Ram : </label> <input type="text" name="ram"><br>
+        <label>Rom   : </label> <input type="text" name="rom"><br>
+        <input type="submit" value="Submit">
+    </form>
+    {{/if}}
+
+    <hr>
+
+    <h2>List :</h2>
+    {{#each mobilesList}}
+        <ul>
+            <li> {{this.brand}} - {{this.price}} - {{this.ram}} - {{this.rom}} ___ || <a href="/?edit_id={{this._id}}">Edit</a> <hr>|| <a href="/?delete_id={{this._id}}" onclick='return confirm("Are you sure want to delete?")'>Delete</a> ||</li>
+        </ul>
+    {{/each}}
+</body>
+
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB_Node.js</title>
+    {{!--
+    <link rel="stylesheet" href="./main.css"> --}}
+</head>
+
+<body>
+    <h2>Sample project for Node.js and MongoDB crud operation</h2>
+    {{message}}
+    <hr>
+    {{#if edit_id}}
+    <h2>Update Mobile</h2>
+    <form action="/update_mobile/{{edit_id}}" method="post">
+        <label for="">Brand</label> <input type="text" name="Brand" value="{{edit_mobile.brand}}"> <br>
+        <label for="">Price</label> <input type="text" name="Price" value="{{edit_mobile.price}}"> <br>
+        <label for="">Ram</label> <input type="text" name="Ram" value="{{edit_mobile.ram}}"> <br>
+        <label for="">Rom</label> <input type="text" name="Rom" value="{{edit_mobile.rom}}"> <br>
+        <input type="submit" value="Submit">
+    </form> 
+    <br><br>
+    {{else}}
+    <h2>Create Collection</h2>
+    <form class="formclass" action="/mobile" method="post">
+        <label for="">Brand</label> <input type="text" name="Brand"> <br>
+        <label for="">Price</label> <input type="text" name="Price"> <br>
+        <label for="">Ram</label> <input type="text" name="Ram"> <br>
+        <label for="">Rom</label> <input type="text" name="Rom"> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <br><br>
+
+    {{/if}}
+    <hr>
+    <h2>List :</h2>
+    {{#each mobileList}}
+    <ul>
+        <li>{{this.brand}} - {{this.price}} - {{this.ram}} - {{this.rom}} <a href="/?edit_id={{this._id}}">Edit</a></li>
+    </ul>
+    {{/each}}
+</body>
+
+</html>

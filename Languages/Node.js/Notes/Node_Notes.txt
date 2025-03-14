@@ -1,0 +1,31 @@
+---------Node.js notes---------
+
+1. Creating node server
+
+	const http = require('http')
+	const server = http.createServer((req,res)=>{
+		console.log(req)
+	})
+	server.listen(8080)
+	
+	------------------------------------
+	another method:
+	const http = require('http)
+	function reqListenerFunc(req, res){
+		console.log(req)
+	}
+	const server = http.createServer(reqListenerFunc)  // reqListenerFunc is request listener function for server
+	server.listen(8080
+	)
+	------------------------------------
+	
+		const http = require('http')
+	const server = http.createServer((req,res)=>{
+		console.log(req.url)       ->  (/, /home, /home/profile)
+		console.log(req.method)    ->  (GET, POST)
+		console.log(req.headers)   ->  (few important details like 'host', 'os details', 'browser details', 'data types that can be accept by browser', ...)
+	})
+	server.listen(8080)
+	------------------------------------
+
+	

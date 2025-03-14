@@ -1,0 +1,102 @@
+APP.JS : 
+
+const express = require('express')
+const app = express()
+const bodyparser = require('body-parser')
+const exhbs = require('express-handlebars')
+const dbo = require('./db')
+
+app.engine('hbs', exhbs.engine({ layoutsDir: 'views/', defaultLayout: 'main', extname: 'hbs' }))
+app.set('view engine', 'hbs')
+app.set('views', 'views')
+app.use(bodyparser.urlencoded({ extended: true }))
+
+app.get('/', async (req, res) => {
+    const database = await dbo.getDatabase()
+    let collection = database.collection('listone')
+    let cursor = collection.find({})
+    const productList = await cursor.toArray()
+
+    let message = ''
+    switch (req.query.status) {
+        case '1':
+            message = "Data inserted successfully"
+            break;
+
+        default:
+            break;
+    }
+    res.render('main', { message, productList })
+})
+
+app.post('/mobile', (async (req, res) => {
+    let database = await dbo.getDatabase()
+    let collection = database.collection('listone')
+    let mobiles = { brand: req.body.brand, price: req.body.price, ram: req.body.ram, rom: req.body.rom }
+    await collection.insertOne(mobiles)
+    return res.redirect('/?status=1')
+}))
+
+app.listen(3000, () => {
+    console.log("Listening to port 3000");
+})
+-------------------------------------------------------------------------
+
+
+DB.JS :
+
+const mongodb = require('mongodb')
+const mongodbClient = mongodb.MongoClient;
+
+let database;
+
+async function getDatabase(){
+    const client = await mongodbClient.connect('mongodb://127.0.0.1:27017')
+    database = client.db('temp')
+
+    if(!database){
+        console.log("Database not connected");
+    }
+    return database;
+}
+module.exports = {
+    getDatabase
+}
+------------------------------------------------------------------------
+
+
+VIEWS/MAIN.HBS :
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port 3000 - three</title>
+</head>
+
+<body>
+    <h2>Sample project for Node.js and MongoDB crud operation</h2>
+    {{message}}
+    <h4>Create : </h4>
+    <form action="/mobile" method="post">
+        <label for="">Brand : </label> <input type="text" name="brand"> <br>
+        <label for="">Price : </label> <input type="text" name="price"> <br>
+        <label for="">Ram : </label> <input type="text" name="ram"> <br>
+        <label for="">Rom : </label> <input type="text" name="rom"> <br>
+        <input type="submit" value="Enter">
+    </form>
+    <br><br>
+    <hr>
+
+<h4>Mobile List :</h4>
+    {{#each productList}}
+    <ul>
+        <li>{{this.brand}} - {{this.price}} - {{this.ram}} - {{this.rom}}</li>
+    </ul>
+    {{/each}}
+</body>
+
+</html>
+---------------------------------------------------------------------------

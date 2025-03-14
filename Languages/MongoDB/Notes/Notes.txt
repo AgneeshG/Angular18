@@ -1,0 +1,81 @@
+What is MongoDB?
+
+
+
+Start MongoDB server in cmd:
+	cmd> mongod --dbpath="D:\Program Files\MongoDB\Server\7.0\db"
+	cmd> mongosh (open mongodb shell)
+	
+	- show dbs (list all available database name)
+	- show collections (list all available collection name)
+	- use show (create new database and switch to shop)
+	- ctrl + enter --> next line
+
+-----------------------------------------------------------------------------------------------------
+			------- CRUD ---------
+Create :
+
+test> use office (switch to db office)   -- create database
+office> db.employee.insertOne({ name:'Agneesh', details:{position:'Angular developer', salary:22000} })   -- insert single data
+office> db.employee.insertMany([ 
+				{name:'Dharshini', details:{position:'React developer', salary:20000},
+				{name:'Vimal', details:{position:'Java developer', salary:25000},
+				{name:'Sam', details:{position:'Java developer', salary:25000}
+				])  									  -- insert many data
+
+Read:
+
+office> db.employee.findOne({ name:'Vimal' })  				-- find single data
+office> db.employee.find({ 'details.positin': 'Java developer' })	-- find more than one data
+
+
+Update:
+
+office> db.employee.updateOne({ name:'Agneesh' },{ $set:{ 'details.salary':26000 }}})  --  update single record
+office> db.employee.updateMany({ 'details.position':'Java developer' },{ $set:{ 'details.salary':280000 }})  -- update many recored
+
+
+Delete:
+office> db.employee.deleteOne({ name:'Sam' })
+office> db.employee.deleteMany({ 'details.position':'Java developer' })
+
+------------------------------------------------------------------------------------------------------
+Projection :
+
+
+
+
+
+
+
+		-------------- Query Operators -------------
+
+Comparision Operators:
+
+$eq - Values are equal  ( office> db.employee.find({ city:{ $eq:'Coimbatore' }})  )
+$ne - values are not equal  (  office> db.employee.find({ city:{ $ne:'Coimbatore' }})  )
+$gt - Value is greater than another value
+$gte - Value is greater than or equal to another value
+$lt - Value is less than another value
+$lte - Value is less than or equal to another value
+$in - Value is matched within an array  (  office> db.employee.find({ age:{ $in:[24,25,30] }})  )
+
+
+Logical Operators:
+
+$and - Returns documents where both queries match
+		office> db.employee.find({ $and:[ {city:{$eq:'Coimbatore'}},{age:{$eq:27}} ]})
+$or - Returns documents where either query matches
+		office> db.employee.find({ $or:[ {city:{$eq:'Coimbatore'}},{city:{$eq:'Pollachi'}} ]})
+$not - Returns documents where both queries fail to match
+$not - Returns documents where the query does not match
+
+
+Evaluation Operators:
+
+$regex - Allows the use of regular expressions
+		test> db.employee.find({ name:{ $regex:'^M' }})   ---   test> db.employee.find({ name:{ $regex:'^M', $options:'i' }})
+$where - Allows the use of Javascript expressions
+		test> db.employee.find({ where:function(){ return this.name=='Brindha'} })
+$test - performs a text search on the context
+		test> db.articles.find({ $test:{ $search: 'back coffee cake' }})

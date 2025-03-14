@@ -1,0 +1,136 @@
+APP.JS : 
+
+const express = require('express')
+const app = express()
+const bodyparser = require('body-parser')
+const exhbs = require('express-handlebars')
+const dbo = require('./db')
+const ObjectID = dbo.ObjectID
+
+app.engine('hbs', exhbs.engine({ layoutsDir: 'views/', defaultLayout: 'main', extname: 'hbs' }))
+app.set('view engine', 'hbs')
+app.set('views', 'views')
+app.use(bodyparser.urlencoded({ extended: true }))
+
+
+app.get('/', async (req, res) => {
+    const database = await dbo.getDatabase()
+    let collection = database.collection('listone')
+    let cursor = collection.find({})
+    const mobileList = await cursor.toArray()
+
+    let message = ''
+    let edit_id, edit_mobile;
+    if (req.query.edit_id) {
+        edit_id = req.query.edit_id;
+        edit_mobile = await collection.findOne({ _id: new ObjectID(edit_id) })
+    }
+    switch (req.query.status) {
+        case '1':
+            message = "Mobile created successfully."
+            break;
+        case '2':
+            message = "Mobile updated successfully."
+        default:    
+            break;
+    }
+    res.render('main', { message, mobileList, edit_id, edit_mobile })
+})
+
+app.post('/mobile', (async (req, res) => {
+    let database = await dbo.getDatabase()
+    let collection = database.collection('listone')
+    let mobileData = { brand: req.body.Brand, price: req.body.Price, ram: req.body.Ram, rom: req.body.Rom }
+    await collection.insertOne(mobileData)
+    return res.redirect('/?status=1')
+}))
+
+app.post('/update_mobile/:edit_id', (async (req, res) => {
+    const database = await dbo.getDatabase()
+    let collection = database.collection('listone')
+    let edit_id = req.params.edit_id
+    let mobiles = { brand: req.body.Brand, price: req.body.Price, ram: req.body.Ram, rom: req.body.Rom }
+    await collection.updateOne({ _id: new ObjectID(edit_id) }, { $set: mobiles })
+    return res.redirect('/?status=2',)
+}))
+
+app.listen(3400, () => {
+    console.log("Listening to 3400 port");
+})
+
+-------------------------------------------------------------------------
+
+
+DB.JS :
+
+const mongodb = require('mongodb')
+const mongoClient = mongodb.MongoClient;
+const ObjectID = mongodb.ObjectId;
+
+let database;
+async function getDatabase(){
+    const client = await mongoClient.connect('mongodb://127.0.0.1:27017')
+    database = client.db('temp')
+
+    if(!database){
+        console.log("Database not connected");        
+    }
+    return database
+}
+module.exports = {
+    getDatabase,
+    ObjectID
+}
+------------------------------------------------------------------------
+
+
+VIEWS/MAIN.HBS :
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB_Node.js</title>
+    {{!--
+    <link rel="stylesheet" href="./main.css"> --}}
+</head>
+
+<body>
+    <h2>Sample project for Node.js and MongoDB crud operation</h2>
+    {{message}}
+    <hr>
+    {{#if edit_id}}
+    <h2>Update Mobile</h2>
+    <form action="/update_mobile/{{edit_id}}" method="post">
+        <label for="">Brand</label> <input type="text" name="Brand" value="{{edit_mobile.brand}}"> <br>
+        <label for="">Price</label> <input type="text" name="Price" value="{{edit_mobile.price}}"> <br>
+        <label for="">Ram</label> <input type="text" name="Ram" value="{{edit_mobile.ram}}"> <br>
+        <label for="">Rom</label> <input type="text" name="Rom" value="{{edit_mobile.rom}}"> <br>
+        <input type="submit" value="Submit">
+    </form> 
+    <br><br>
+    {{else}}
+    <h2>Create Collection</h2>
+    <form class="formclass" action="/mobile" method="post">
+        <label for="">Brand</label> <input type="text" name="Brand"> <br>
+        <label for="">Price</label> <input type="text" name="Price"> <br>
+        <label for="">Ram</label> <input type="text" name="Ram"> <br>
+        <label for="">Rom</label> <input type="text" name="Rom"> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <br><br>
+
+    {{/if}}
+    <hr>
+    <h2>List :</h2>
+    {{#each mobileList}}
+    <ul>
+        <li>{{this.brand}} - {{this.price}} - {{this.ram}} - {{this.rom}} <a href="/?edit_id={{this._id}}">Edit</a></li>
+    </ul>
+    {{/each}}
+</body>
+
+</html>
+---------------------------------------------------------------------------
